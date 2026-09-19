@@ -63,6 +63,13 @@ class SleeperService:
         return response.json()
     
 
+# Get All Players (5MB | Once Per Day)
+    def get_all_players(self):
+        response = requests.get(f"{self.BASE_URL}/players/nfl")
+        response.raise_for_status()
+        return response.json()
+    
+
 # Get Trending Players
     def get_trending_players(self, trend_type, lookback_hours=24, limit=25):
         response = requests.get(f"{self.BASE_URL}/players/nfl/trending/{trend_type}", params={"lookback_hours": lookback_hours, "limit": limit})
