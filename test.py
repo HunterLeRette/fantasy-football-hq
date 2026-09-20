@@ -1,41 +1,38 @@
 import requests
 import pandas as pd
-from ServiceLayer import SleeperService
+from service_layer import SleeperService
 from cache import get_cached_players
 import time
-
-
-sleeper = SleeperService()
-
-league_id = "1312141634963509248"
-
-players = get_cached_players(sleeper)
-
-rosters = sleeper.get_rosters(league_id)
-
-users = sleeper.get_league_users(league_id)
-
-user_lookup = {user["user_id"]: user["display_name"] for user in users}
-
-my_username = 'jwbRaiders'
-my_user = sleeper.get_user(my_username)
-my_user_id = my_user["user_id"]
-
-my_roster = next(r for r in rosters if r["owner_id"] == my_user_id)
-
-owner_name = user_lookup.get(my_roster["owner_id"], "Unknown Owner")
-print(f"Team: {owner_name}")
-print ("-" * 30)
-
-for player_id in my_roster["players"]:
-    player_info = players.get(player_id)
-    if player_info: 
-        full_name = f"{player_info['first_name']} {player_info['last_name']}"
-        position = player_info.get("position", "?")
-        print(f"{full_name} ({position})")
-    else:
-        print(f"Unkown player_id: {player_id}")
+import nflreadpy as nfl
 
 
 
+data = nfl.load_player_stats(seasons=[2026])
+all_columns = data.columns
+
+# Group columns by keyword
+categories = {
+    "Passing": [c for c in all_columns if "pass" in c],
+    "Rushing": [c for c in all_columns if "rush" in c or c == "carries"],
+    "Receiving": [c for c in all_columns if "rec" in c or c in ("targets", "air_yards_share", "wopr", "racr")],
+    "Kicking": [c for c in all_columns if "fg" in c or "pat" in c or "gwfg" in c],
+    "Defense": [c for c in all_columns if c.startswith("def_")],
+    "Special Teams": [c for c in all_columns if "punt" in c or "kickoff" in c or c.startswith("pt_")],
+    "Fumbles": [c for c in all_columns if "fumble" in c],
+}
+
+# Track columns already categorized so we can show what's left over
+categorized = set()
+for cols in categories.values():
+    categorized.update(cols)
+
+categories["Other / Identifiers"] = [c for c in all_columns if c not in categorized]
+
+# Print nicely
+for category, cols in categories.items():
+    print(f"\n{'=' * 50}")
+    print(f"{category} ({len(cols)} columns)")
+    print('=' * 50)
+    for col in cols:
+        print(f"  - {col}")
 
