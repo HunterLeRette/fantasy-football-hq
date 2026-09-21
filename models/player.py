@@ -7,7 +7,7 @@ class Player():
     name: str
     team: str
     position: str
-    bye_week: int | None
+    bye_week: int | None  # Fix bye week compatibility later
     injury_status: str | None 
     fantasy_points: float
     fantasy_points_ppr: float
