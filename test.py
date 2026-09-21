@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
-from service_layer import SleeperService
-from cache import get_cached_players
+from connectors.service_layer import SleeperService
+from storage.cache import get_cached_players
 import time
 import nflreadpy as nfl
 
